@@ -22,6 +22,11 @@ namespace BaiTap
             listBox1.Items.Add("Bài 10");
             listBox1.Items.Add("Bài 11");
             listBox1.Items.Add("Bài 12");
+            listBox1.Items.Add("Bài 13");
+            listBox1.Items.Add("Bài 14");
+            listBox1.Items.Add("Bài 16");
+            listBox1.Items.Add("Bài 17");
+            listBox1.Items.Add("Bài 18");
 
 
         }
@@ -45,6 +50,11 @@ namespace BaiTap
                 "Bài 10" => new Article10(),
                 "Bài 11" => new Article11(),
                 "Bài 12" => new Article12(),
+                "Bài 13" => new Article13(),
+                "Bài 14" => new Article14(),
+                "Bài 16" => new Article16(),
+                "Bài 17" => new Article17(),
+                "Bài 18" => new Article18(),
 
 
                 _ => null
