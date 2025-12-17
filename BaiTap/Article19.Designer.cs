@@ -3,7 +3,7 @@ using System.Windows.Forms;
 
 namespace BaiTap
 {
-    partial class Article18
+    partial class Article19
     {
         /// <summary>
         /// Required designer variable.
@@ -36,15 +36,19 @@ namespace BaiTap
             this.lblTenNhanVien = new System.Windows.Forms.Label();
             this.txtTenNhanVien = new System.Windows.Forms.TextBox();
             this.lblAnh = new System.Windows.Forms.Label();
-            this.picAnhNhanVien = new System.Windows.Forms.PictureBox();
-            this.btnChonAnh = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.picAnhNhanVien)).BeginInit();
+            this.pbImage = new System.Windows.Forms.PictureBox();
+            this.btFile = new System.Windows.Forms.Button();
+            this.dgvEmployee = new System.Windows.Forms.DataGridView();
+            this.colMa = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colTen = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            ((System.ComponentModel.ISupportInitialize)(this.pbImage)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvEmployee)).BeginInit();
             this.SuspendLayout();
             // 
             // lblMaNhanVien
             // 
             this.lblMaNhanVien.AutoSize = true;
-            this.lblMaNhanVien.Location = new System.Drawing.Point(30, 30);
+            this.lblMaNhanVien.Location = new System.Drawing.Point(20, 20);
             this.lblMaNhanVien.Name = "lblMaNhanVien";
             this.lblMaNhanVien.Size = new System.Drawing.Size(72, 13);
             this.lblMaNhanVien.TabIndex = 0;
@@ -52,7 +56,7 @@ namespace BaiTap
             // 
             // txtMaNhanVien
             // 
-            this.txtMaNhanVien.Location = new System.Drawing.Point(120, 27);
+            this.txtMaNhanVien.Location = new System.Drawing.Point(110, 17);
             this.txtMaNhanVien.Name = "txtMaNhanVien";
             this.txtMaNhanVien.Size = new System.Drawing.Size(150, 20);
             this.txtMaNhanVien.TabIndex = 1;
@@ -60,7 +64,7 @@ namespace BaiTap
             // lblTenNhanVien
             // 
             this.lblTenNhanVien.AutoSize = true;
-            this.lblTenNhanVien.Location = new System.Drawing.Point(30, 70);
+            this.lblTenNhanVien.Location = new System.Drawing.Point(20, 50);
             this.lblTenNhanVien.Name = "lblTenNhanVien";
             this.lblTenNhanVien.Size = new System.Drawing.Size(76, 13);
             this.lblTenNhanVien.TabIndex = 2;
@@ -68,7 +72,7 @@ namespace BaiTap
             // 
             // txtTenNhanVien
             // 
-            this.txtTenNhanVien.Location = new System.Drawing.Point(120, 67);
+            this.txtTenNhanVien.Location = new System.Drawing.Point(110, 47);
             this.txtTenNhanVien.Name = "txtTenNhanVien";
             this.txtTenNhanVien.Size = new System.Drawing.Size(250, 20);
             this.txtTenNhanVien.TabIndex = 3;
@@ -76,47 +80,73 @@ namespace BaiTap
             // lblAnh
             // 
             this.lblAnh.AutoSize = true;
-            this.lblAnh.Location = new System.Drawing.Point(30, 110);
+            this.lblAnh.Location = new System.Drawing.Point(20, 90);
             this.lblAnh.Name = "lblAnh";
             this.lblAnh.Size = new System.Drawing.Size(46, 13);
             this.lblAnh.TabIndex = 4;
             this.lblAnh.Text = "Ảnh 3x4";
             // 
-            // picAnhNhanVien
+            // pbImage
             // 
-            this.picAnhNhanVien.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picAnhNhanVien.Location = new System.Drawing.Point(120, 110);
-            this.picAnhNhanVien.Name = "picAnhNhanVien";
-            this.picAnhNhanVien.Size = new System.Drawing.Size(120, 160); // Tỷ lệ 3x4
-            this.picAnhNhanVien.TabIndex = 5;
-            this.picAnhNhanVien.TabStop = false;
+            this.pbImage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pbImage.Location = new System.Drawing.Point(110, 90);
+            this.pbImage.Name = "pbImage"; // Tên theo Slide 128
+            this.pbImage.Size = new System.Drawing.Size(120, 150);
+            this.pbImage.TabIndex = 5;
+            this.pbImage.TabStop = false;
             // 
-            // btnChonAnh
+            // btFile
             // 
-            this.btnChonAnh.Location = new System.Drawing.Point(260, 110);
-            this.btnChonAnh.Name = "btnChonAnh";
-            this.btnChonAnh.Size = new System.Drawing.Size(110, 30);
-            this.btnChonAnh.TabIndex = 6;
-            this.btnChonAnh.Text = "Chọn ảnh ...";
-            this.btnChonAnh.UseVisualStyleBackColor = true;
-            this.btnChonAnh.Click += new System.EventHandler(this.btnChonAnh_Click);
+            this.btFile.Location = new System.Drawing.Point(250, 90);
+            this.btFile.Name = "btFile"; // Tên theo Slide 128
+            this.btFile.Size = new System.Drawing.Size(100, 30);
+            this.btFile.TabIndex = 6;
+            this.btFile.Text = "Chọn ảnh ...";
+            this.btFile.UseVisualStyleBackColor = true;
+            this.btFile.Click += new System.EventHandler(this.btFile_Click);
             // 
-            // Article18
+            // dgvEmployee
+            // 
+            this.dgvEmployee.AllowUserToAddRows = false;
+            this.dgvEmployee.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvEmployee.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colMa,
+            this.colTen});
+            this.dgvEmployee.Location = new System.Drawing.Point(23, 260);
+            this.dgvEmployee.Name = "dgvEmployee"; // Tên theo Slide 133
+            this.dgvEmployee.Size = new System.Drawing.Size(350, 150);
+            this.dgvEmployee.TabIndex = 7;
+            // 
+            // colMa
+            // 
+            this.colMa.HeaderText = "Mã nhân viên"; // Tiêu đề cột 1 (Slide 132)
+            this.colMa.Name = "colMa";
+            this.colMa.Width = 120;
+            // 
+            // colTen
+            // 
+            this.colTen.HeaderText = "Tên nhân viên"; // Tiêu đề cột 2 (Slide 132)
+            this.colTen.Name = "colTen";
+            this.colTen.Width = 180;
+            // 
+            // Article19
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 300);
-            this.Controls.Add(this.btnChonAnh);
-            this.Controls.Add(this.picAnhNhanVien);
+            this.ClientSize = new System.Drawing.Size(400, 430);
+            this.Controls.Add(this.dgvEmployee);
+            this.Controls.Add(this.btFile);
+            this.Controls.Add(this.pbImage);
             this.Controls.Add(this.lblAnh);
             this.Controls.Add(this.txtTenNhanVien);
             this.Controls.Add(this.lblTenNhanVien);
             this.Controls.Add(this.txtMaNhanVien);
             this.Controls.Add(this.lblMaNhanVien);
-            this.Name = "Article18";
+            this.Name = "Article19";
             this.Text = "Quản lý nhân sự";
-            this.Load += new System.EventHandler(this.Article18_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.picAnhNhanVien)).EndInit();
+            this.Load += new System.EventHandler(this.Article19_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.pbImage)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvEmployee)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -129,7 +159,10 @@ namespace BaiTap
         private System.Windows.Forms.Label lblTenNhanVien;
         private System.Windows.Forms.TextBox txtTenNhanVien;
         private System.Windows.Forms.Label lblAnh;
-        private System.Windows.Forms.PictureBox picAnhNhanVien;
-        private System.Windows.Forms.Button btnChonAnh;
+        private System.Windows.Forms.PictureBox pbImage;
+        private System.Windows.Forms.Button btFile;
+        private System.Windows.Forms.DataGridView dgvEmployee;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colMa;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colTen;
     }
 }
