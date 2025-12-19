@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\BaiTap"
+    "\\BaiTap",
+    "\\BaiTap\\images"
   ],
-  "SelectedNode": "\\BaiTap\\Article20.Designer.cs",
+  "SelectedNode": "\\BaiTap\\Program.cs",
   "PreviewInSolutionExplorer": false
 }
