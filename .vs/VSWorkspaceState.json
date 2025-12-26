@@ -1,12 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\BaiTap",
-    "\\BaiTap\\bin",
     "\\BaiTap\\images",
-    "\\Game_1",
     "\\Game_1\\images"
   ],
-  "SelectedNode": "\\Game_1\\Form1.cs",
+  "SelectedNode": "\\Game_1",
   "PreviewInSolutionExplorer": false
 }
