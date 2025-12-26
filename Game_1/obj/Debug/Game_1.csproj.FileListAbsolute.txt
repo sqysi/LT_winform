@@ -1,0 +1,10 @@
+D:\SCHOOL\LT-C#\LT_winform\Game_1\obj\Debug\Game_1.csproj.AssemblyReference.cache
+D:\SCHOOL\LT-C#\LT_winform\Game_1\obj\Debug\Game_1.Properties.Resources.resources
+D:\SCHOOL\LT-C#\LT_winform\Game_1\obj\Debug\Game_1.csproj.GenerateResource.cache
+D:\SCHOOL\LT-C#\LT_winform\Game_1\obj\Debug\Game_1.csproj.CoreCompileInputs.cache
+D:\SCHOOL\LT-C#\LT_winform\Game_1\obj\Debug\Game_1.Form1.resources
+D:\SCHOOL\LT-C#\LT_winform\Game_1\bin\Debug\Game_1.exe.config
+D:\SCHOOL\LT-C#\LT_winform\Game_1\bin\Debug\Game_1.exe
+D:\SCHOOL\LT-C#\LT_winform\Game_1\bin\Debug\Game_1.pdb
+D:\SCHOOL\LT-C#\LT_winform\Game_1\obj\Debug\Game_1.exe
+D:\SCHOOL\LT-C#\LT_winform\Game_1\obj\Debug\Game_1.pdb
