@@ -29,7 +29,7 @@ namespace Game_1
         // --- THÔNG SỐ VẬT LÝ ---
         int playerSpeed = 8;
         int jumpForceInitial = 15;
-        int gravitySpeed = 12;
+        int gravitySpeed = 5;
 
         int playerWidth = 30;
         int playerHeight = 45;

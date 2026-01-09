@@ -1,0 +1,10 @@
+D:\SCHOOL\LT-C#\LT_winform\ADO\bin\Debug\ADO.exe.config
+D:\SCHOOL\LT-C#\LT_winform\ADO\bin\Debug\ADO.exe
+D:\SCHOOL\LT-C#\LT_winform\ADO\bin\Debug\ADO.pdb
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.csproj.AssemblyReference.cache
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.Properties.Resources.resources
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.csproj.GenerateResource.cache
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.csproj.CoreCompileInputs.cache
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.exe
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.pdb
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.dgvCustomer.resources
