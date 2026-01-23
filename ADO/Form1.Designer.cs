@@ -1,140 +1,187 @@
 ﻿namespace ADO
 {
-    partial class dgvCustomer
+    partial class Form1
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
+            if (disposing && (components != null)) components.Dispose();
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
-            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
-            this.dgvCustomers = new System.Windows.Forms.DataGridView();
-            this.id = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCustomers)).BeginInit();
+            this.dgvCustomer = new System.Windows.Forms.DataGridView();
+            this.lblId = new System.Windows.Forms.Label();
+            this.txtId = new System.Windows.Forms.TextBox();
+            this.lblName = new System.Windows.Forms.Label();
+            this.txtName = new System.Windows.Forms.TextBox();
+            this.lblPhone = new System.Windows.Forms.Label();
+            this.txtPhone = new System.Windows.Forms.TextBox();
+            this.lblGender = new System.Windows.Forms.Label();
+            this.rbMale = new System.Windows.Forms.RadioButton();
+            this.rbFemale = new System.Windows.Forms.RadioButton();
+            this.btNew = new System.Windows.Forms.Button();
+            this.btDelete = new System.Windows.Forms.Button();
+            this.btEdit = new System.Windows.Forms.Button();
+            this.btRead = new System.Windows.Forms.Button();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCustomer)).BeginInit();
             this.SuspendLayout();
+
             // 
-            // button1
+            // dgvCustomer (Lưới)
             // 
-            this.button1.Location = new System.Drawing.Point(25, 386);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(83, 42);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Thêm ";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.dgvCustomer.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvCustomer.Location = new System.Drawing.Point(30, 150);
+            this.dgvCustomer.Name = "dgvCustomer";
+            this.dgvCustomer.RowHeadersWidth = 62;
+            this.dgvCustomer.Size = new System.Drawing.Size(700, 200);
+            this.dgvCustomer.TabIndex = 8;
+            this.dgvCustomer.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvCustomer_CellClick);
+
             // 
-            // button2
+            // ID
             // 
-            this.button2.Location = new System.Drawing.Point(154, 386);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(83, 42);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Xoas";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.lblId.AutoSize = true;
+            this.lblId.Location = new System.Drawing.Point(30, 30);
+            this.lblId.Name = "lblId";
+            this.lblId.Text = "Mã KH:";
+
+            this.txtId.Location = new System.Drawing.Point(90, 27);
+            this.txtId.Name = "txtId";
+            this.txtId.Size = new System.Drawing.Size(150, 26);
+            this.txtId.TabIndex = 0;
+
             // 
-            // button3
+            // Name
             // 
-            this.button3.Location = new System.Drawing.Point(284, 386);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(83, 42);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "Suarw";
-            this.button3.UseVisualStyleBackColor = true;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
+            this.lblName.AutoSize = true;
+            this.lblName.Location = new System.Drawing.Point(280, 30);
+            this.lblName.Name = "lblName";
+            this.lblName.Text = "Tên KH:";
+
+            this.txtName.Location = new System.Drawing.Point(350, 27);
+            this.txtName.Name = "txtName";
+            this.txtName.Size = new System.Drawing.Size(250, 26);
+            this.txtName.TabIndex = 1;
+
             // 
-            // button4
+            // Phone (Mới)
             // 
-            this.button4.Location = new System.Drawing.Point(433, 386);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(148, 42);
-            this.button4.TabIndex = 3;
-            this.button4.Text = "Doc Du Lieu";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click);
+            this.lblPhone.AutoSize = true;
+            this.lblPhone.Location = new System.Drawing.Point(30, 80);
+            this.lblPhone.Name = "lblPhone";
+            this.lblPhone.Text = "SĐT:";
+
+            this.txtPhone.Location = new System.Drawing.Point(90, 77);
+            this.txtPhone.Name = "txtPhone";
+            this.txtPhone.Size = new System.Drawing.Size(150, 26);
+            this.txtPhone.TabIndex = 2;
+
             // 
-            // dgvCustomers
+            // Gender (Radio Buttons - Mới)
             // 
-            this.dgvCustomers.AllowUserToOrderColumns = true;
-            this.dgvCustomers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvCustomers.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.id,
-            this.name});
-            this.dgvCustomers.Location = new System.Drawing.Point(40, 12);
-            this.dgvCustomers.Name = "dgvCustomers";
-            this.dgvCustomers.RowHeadersWidth = 62;
-            this.dgvCustomers.RowTemplate.Height = 28;
-            this.dgvCustomers.Size = new System.Drawing.Size(714, 357);
-            this.dgvCustomers.TabIndex = 4;
-            this.dgvCustomers.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.lblGender.AutoSize = true;
+            this.lblGender.Location = new System.Drawing.Point(280, 80);
+            this.lblGender.Name = "lblGender";
+            this.lblGender.Text = "Giới tính:";
+
+            this.rbMale.AutoSize = true;
+            this.rbMale.Location = new System.Drawing.Point(360, 78);
+            this.rbMale.Name = "rbMale";
+            this.rbMale.Size = new System.Drawing.Size(67, 24);
+            this.rbMale.TabIndex = 3;
+            this.rbMale.TabStop = true;
+            this.rbMale.Text = "Nam";
+            this.rbMale.UseVisualStyleBackColor = true;
+            this.rbMale.Checked = true; // Mặc định chọn Nam
+
+            this.rbFemale.AutoSize = true;
+            this.rbFemale.Location = new System.Drawing.Point(440, 78);
+            this.rbFemale.Name = "rbFemale";
+            this.rbFemale.Size = new System.Drawing.Size(54, 24);
+            this.rbFemale.TabIndex = 4;
+            this.rbFemale.TabStop = true;
+            this.rbFemale.Text = "Nữ";
+            this.rbFemale.UseVisualStyleBackColor = true;
+
             // 
-            // id
+            // Buttons
             // 
-            this.id.HeaderText = "Mã ";
-            this.id.MinimumWidth = 8;
-            this.id.Name = "id";
-            this.id.Width = 150;
+            this.btNew.Location = new System.Drawing.Point(30, 380);
+            this.btNew.Name = "btNew";
+            this.btNew.Size = new System.Drawing.Size(100, 40);
+            this.btNew.Text = "Thêm";
+            this.btNew.UseVisualStyleBackColor = true;
+            this.btNew.Click += new System.EventHandler(this.btNew_Click);
+
+            this.btDelete.Location = new System.Drawing.Point(150, 380);
+            this.btDelete.Name = "btDelete";
+            this.btDelete.Size = new System.Drawing.Size(100, 40);
+            this.btDelete.Text = "Xóa";
+            this.btDelete.UseVisualStyleBackColor = true;
+            this.btDelete.Click += new System.EventHandler(this.btDelete_Click);
+
+            this.btEdit.Location = new System.Drawing.Point(270, 380);
+            this.btEdit.Name = "btEdit";
+            this.btEdit.Size = new System.Drawing.Size(100, 40);
+            this.btEdit.Text = "Sửa";
+            this.btEdit.UseVisualStyleBackColor = true;
+            this.btEdit.Click += new System.EventHandler(this.btEdit_Click);
+
+            this.btRead.Location = new System.Drawing.Point(580, 380);
+            this.btRead.Name = "btRead";
+            this.btRead.Size = new System.Drawing.Size(150, 40);
+            this.btRead.Text = "Đọc Dữ Liệu";
+            this.btRead.UseVisualStyleBackColor = true;
+            this.btRead.Click += new System.EventHandler(this.btRead_Click);
+
             // 
-            // name
-            // 
-            this.name.HeaderText = "Tên ";
-            this.name.MinimumWidth = 8;
-            this.name.Name = "name";
-            this.name.Width = 500;
-            // 
-            // dgvCustomer
+            // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.dgvCustomers);
-            this.Controls.Add(this.button4);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
-            this.Name = "dgvCustomer";
-            this.Text = "dgvCustomer";
-            ((System.ComponentModel.ISupportInitialize)(this.dgvCustomers)).EndInit();
+            this.ClientSize = new System.Drawing.Size(760, 450);
+            this.Controls.Add(this.btRead);
+            this.Controls.Add(this.btEdit);
+            this.Controls.Add(this.btDelete);
+            this.Controls.Add(this.btNew);
+            this.Controls.Add(this.rbFemale); // Thêm Radio Nữ
+            this.Controls.Add(this.rbMale);   // Thêm Radio Nam
+            this.Controls.Add(this.lblGender);
+            this.Controls.Add(this.txtPhone);
+            this.Controls.Add(this.lblPhone);
+            this.Controls.Add(this.txtName);
+            this.Controls.Add(this.lblName);
+            this.Controls.Add(this.txtId);
+            this.Controls.Add(this.lblId);
+            this.Controls.Add(this.dgvCustomer);
+            this.Name = "Form1";
+            this.Text = "Quản Lý Khách Hàng";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            ((System.ComponentModel.ISupportInitialize)(this.dgvCustomer)).EndInit();
             this.ResumeLayout(false);
-
+            this.PerformLayout();
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
-        private System.Windows.Forms.DataGridView dgvCustomers;
-        private System.Windows.Forms.DataGridViewTextBoxColumn id;
-        private System.Windows.Forms.DataGridViewTextBoxColumn name;
+        private System.Windows.Forms.DataGridView dgvCustomer;
+        private System.Windows.Forms.Label lblId;
+        private System.Windows.Forms.TextBox txtId;
+        private System.Windows.Forms.Label lblName;
+        private System.Windows.Forms.TextBox txtName;
+        private System.Windows.Forms.Label lblPhone; // Mới
+        private System.Windows.Forms.TextBox txtPhone; // Mới
+        private System.Windows.Forms.Label lblGender; // Mới
+        private System.Windows.Forms.RadioButton rbMale; // Mới (Nam)
+        private System.Windows.Forms.RadioButton rbFemale; // Mới (Nữ)
+        private System.Windows.Forms.Button btNew;
+        private System.Windows.Forms.Button btDelete;
+        private System.Windows.Forms.Button btEdit;
+        private System.Windows.Forms.Button btRead;
     }
 }
-
