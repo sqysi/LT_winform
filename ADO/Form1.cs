@@ -2,12 +2,14 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Forms;
+using System.IO;   // Để ghi file
+using System.Text; // Để xử lý tiếng Việt
 
 namespace ADO
 {
     public partial class Form1 : Form
     {
-        // Chuỗi kết nối (Đã cập nhật theo code bạn gửi)
+        // --- CẤU HÌNH ---
         string strConnect = @"Data Source=QYS\SYQUYS;Database=sale;Integrated Security=True";
 
         public Form1()
@@ -21,7 +23,7 @@ namespace ADO
             LoadData();
         }
 
-        // --- CẤU HÌNH BẢNG ---
+        #region Helpers
         private void ConfigGridView()
         {
             dgvCustomer.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -33,7 +35,6 @@ namespace ADO
             dgvCustomer.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
 
-        // --- TẢI DỮ LIỆU DANH SÁCH (Chỉ lấy ID và Tên cho nhẹ) ---
         private void LoadData()
         {
             using (SqlConnection conn = new SqlConnection(strConnect))
@@ -41,8 +42,9 @@ namespace ADO
                 try
                 {
                     conn.Open();
-                    // Chỉ lấy các trường cần thiết để hiển thị trên Grid
-                    SqlDataAdapter da = new SqlDataAdapter("SELECT id, name, phone, gender FROM customer", conn);
+                    string query = "SELECT id, name, phone, gender, department FROM customer";
+
+                    SqlDataAdapter da = new SqlDataAdapter(query, conn);
                     DataTable dt = new DataTable();
                     da.Fill(dt);
                     dgvCustomer.DataSource = dt;
@@ -51,13 +53,10 @@ namespace ADO
                     if (dgvCustomer.Columns.Count > 0)
                     {
                         dgvCustomer.Columns["id"].HeaderText = "Mã NV";
-                        dgvCustomer.Columns["id"].FillWeight = 20;
                         dgvCustomer.Columns["name"].HeaderText = "Họ và Tên";
-                        dgvCustomer.Columns["name"].FillWeight = 40;
                         dgvCustomer.Columns["phone"].HeaderText = "SĐT";
-                        dgvCustomer.Columns["phone"].FillWeight = 25;
                         dgvCustomer.Columns["gender"].HeaderText = "Giới Tính";
-                        dgvCustomer.Columns["gender"].FillWeight = 15;
+                        dgvCustomer.Columns["department"].HeaderText = "Phòng Ban";
                     }
                 }
                 catch (Exception ex)
@@ -66,7 +65,9 @@ namespace ADO
                 }
             }
         }
+        #endregion
 
+        #region Buttons Events
         private void btRead_Click(object sender, EventArgs e)
         {
             LoadData();
@@ -74,73 +75,115 @@ namespace ADO
 
         private void btNew_Click(object sender, EventArgs e)
         {
-            // Mở form thêm mới (constructor không tham số)
             frmCustomer f = new frmCustomer();
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                LoadData();
-            }
+            if (f.ShowDialog() == DialogResult.OK) LoadData();
         }
 
         private void btDelete_Click(object sender, EventArgs e)
         {
-            if (dgvCustomer.CurrentRow == null)
-            {
-                MessageBox.Show("Vui lòng chọn dòng cần xóa!");
-                return;
-            }
+            if (dgvCustomer.CurrentRow == null) return;
 
-            // Lấy ID dưới dạng chuỗi để khớp với DB
             string id = dgvCustomer.CurrentRow.Cells["id"].Value.ToString();
+            string name = dgvCustomer.CurrentRow.Cells["name"].Value.ToString();
 
-            if (MessageBox.Show("Bạn chắc chắn muốn xóa nhân viên này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show($"Xóa nhân viên [{name}]?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 using (SqlConnection conn = new SqlConnection(strConnect))
                 {
-                    try
-                    {
-                        conn.Open();
-                        SqlCommand cmd = new SqlCommand("DELETE FROM customer WHERE id = @id", conn);
-                        cmd.Parameters.AddWithValue("@id", id);
-                        cmd.ExecuteNonQuery();
-                        LoadData();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Lỗi: " + ex.Message);
-                    }
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("DELETE FROM customer WHERE id = @id", conn);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                    LoadData();
                 }
             }
         }
 
+        // --- NÚT QUẢN LÝ PHÒNG BAN ---
+        private void btDepartment_Click(object sender, EventArgs e)
+        {
+            frmDepartment f = new frmDepartment();
+            f.ShowDialog();
+            // Sau khi đóng form phòng ban, load lại danh sách nhân viên
+            // để cập nhật tên phòng ban mới (nếu có sửa đổi)
+            LoadData();
+        }
+
+        // --- NÚT XUẤT EXCEL ---
+        private void btExcel_Click(object sender, EventArgs e)
+        {
+            if (dgvCustomer.Rows.Count == 0)
+            {
+                MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo");
+                return;
+            }
+
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Excel Documents (*.xls)|*.xls";
+            sfd.FileName = "DanhSachNhanVien.xls";
+
+            if (sfd.ShowDialog() == DialogResult.OK)
+            {
+                ToExcel(dgvCustomer, sfd.FileName);
+            }
+        }
+        #endregion
+
+        #region Excel Logic
+        private void ToExcel(DataGridView dgv, string fileName)
+        {
+            try
+            {
+                using (StreamWriter sw = new StreamWriter(fileName, false, Encoding.Unicode))
+                {
+                    // Ghi tiêu đề
+                    for (int i = 0; i < dgv.Columns.Count; i++)
+                    {
+                        sw.Write(dgv.Columns[i].HeaderText);
+                        if (i < dgv.Columns.Count - 1) sw.Write("\t");
+                    }
+                    sw.WriteLine();
+
+                    // Ghi dữ liệu
+                    foreach (DataGridViewRow row in dgv.Rows)
+                    {
+                        if (!row.IsNewRow)
+                        {
+                            for (int i = 0; i < dgv.Columns.Count; i++)
+                            {
+                                string value = row.Cells[i].Value != null ? row.Cells[i].Value.ToString() : "";
+                                value = value.Replace("\n", " ").Replace("\r", " ");
+                                sw.Write(value);
+                                if (i < dgv.Columns.Count - 1) sw.Write("\t");
+                            }
+                            sw.WriteLine();
+                        }
+                    }
+                }
+                MessageBox.Show("Xuất Excel thành công!", "Thông báo");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xuất file: " + ex.Message);
+            }
+        }
+        #endregion
+
+        #region Grid Events
         private void dgvCustomer_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Sửa logic: Chỉ cần lấy ID và gọi ShowDetail
             if (e.RowIndex >= 0 && dgvCustomer.CurrentRow != null)
             {
-                var cellValue = dgvCustomer.CurrentRow.Cells["id"].Value;
-                if (cellValue != null)
+                var id = dgvCustomer.CurrentRow.Cells["id"].Value;
+                if (id != null)
                 {
-                    ShowDetail(cellValue.ToString());
+                    frmCustomer f = new frmCustomer(id.ToString());
+                    if (f.ShowDialog() == DialogResult.OK) LoadData();
                 }
             }
         }
-
-        private void ShowDetail(string id)
-        {
-            // Truyền ID sang frmDetail, để form đó tự load dữ liệu đầy đủ
-            frmDetail f = new frmDetail(id);
-            if (f.ShowDialog() == DialogResult.OK)
-            {
-                LoadData(); // Load lại nếu bên detail có sửa/xóa
-            }
-        }
-
+        private void dgvCustomer_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
         private void label1_Click(object sender, EventArgs e) { }
-
-        private void dgvCustomer_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
+        #endregion
     }
 }

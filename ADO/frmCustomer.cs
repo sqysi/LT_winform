@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
@@ -10,10 +11,14 @@ namespace ADO
 {
     public class frmCustomer : Form
     {
+        // --- Configuration ---
+        // Lưu ý: Hãy đảm bảo Connection String này đúng với máy của bạn
         string strConnect = @"Data Source=QYS\SYQUYS;Database=sale;Integrated Security=True";
         private string _currentId = null;
 
-        // --- Controls Group 1 ---
+        // --- Controls ---
+        #region Control Declarations
+        // Group 1
         TextBox txtID, txtName, txtAlias, txtMobile, txtHomePhone, txtEmail, txtPOB, txtCity, txtIDCard, txtIDPlace, txtNative, txtAddr, txtTempAddr;
         DateTimePicker dtpDob, dtpIDDate;
         CheckBox chkMarried;
@@ -21,13 +26,16 @@ namespace ADO
         PictureBox pbAvatar;
         Button btBrowse;
 
-        // --- Controls Group 2 ---
+        // Group 2
         ComboBox cboEmpType, cboDept, cboPosition, cboJobTitle, cboBankName, cboEdu, cboDegree, cboLang, cboIT, cboEthnicity, cboNation, cboReligion;
         DateTimePicker dtpStartDate, dtpLaborDate;
         TextBox txtBasicSalary, txtCoef, txtAllowance, txtLaborBook, txtLaborPlace, txtBankAcc;
 
+        // Buttons
         Button btSave, btCancel;
+        #endregion
 
+        // --- Constructors ---
         public frmCustomer()
         {
             _currentId = null;
@@ -43,43 +51,37 @@ namespace ADO
             LoadDataToForm(id);
         }
 
+        // --- UI Initialization ---
+        #region UI Setup
         private void InitializeUI()
         {
-            // 1. Setup Form
+            // 1. Form Setup
             this.Size = new Size(1100, 900);
             this.StartPosition = FormStartPosition.CenterParent;
             this.AutoScroll = true;
             this.Font = new Font("Segoe UI", 9.5f);
+            this.DoubleBuffered = true; // Giảm giật lag khi cuộn
 
-            // [FIX] Giảm labelW xuống 100 (cũ 110) để tiết kiệm không gian ngang
             int labelW = 100;
-            int y = 30, dy = 45; // Khoảng cách dòng
+            int y = 30, dy = 45;
 
             // --- GROUP 1: THÔNG TIN CÁ NHÂN ---
             GroupBox grpP = new GroupBox() { Text = "Thông Tin Cá Nhân", Location = new Point(15, 10), Size = new Size(1050, 380) };
 
-            // Avatar
+            // Avatar Area
             pbAvatar = new PictureBox() { Location = new Point(15, 30), Size = new Size(140, 180), BorderStyle = BorderStyle.FixedSingle, SizeMode = PictureBoxSizeMode.Zoom };
             btBrowse = new Button() { Text = "Chọn ảnh...", Location = new Point(15, 215), Size = new Size(140, 30) };
-
-            btBrowse.Click += (s, e) => {
-                OpenFileDialog op = new OpenFileDialog() { Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp" };
-                if (op.ShowDialog() == DialogResult.OK) pbAvatar.Image = Image.FromFile(op.FileName);
-            };
+            btBrowse.Click += BtBrowse_Click;
             grpP.Controls.Add(pbAvatar); grpP.Controls.Add(btBrowse);
 
-            // [FIX] Dời các cột sang trái một chút để có chỗ cho cột cuối
-            // Cũ: 180, 480, 770 -> Mới: 170, 450, 730
+            // Columns layout
             int col1 = 170, col2 = 450, col3 = 730;
 
-            // Dòng 1: Mã NV | Họ Tên | Bí Danh + Giới Tính
+            // Dòng 1
             AddLabel(grpP, "Mã NV (*)", col1, y); txtID = AddText(grpP, col1 + labelW, y, 120);
             AddLabel(grpP, "Họ Tên (*)", col2, y); txtName = AddText(grpP, col2 + labelW, y, 180);
-
-            // [FIX] Giảm width txtAlias xuống 100 (cũ 150) và đặt lại vị trí RadioButton sát hơn
             AddLabel(grpP, "Bí danh", col3, y); txtAlias = AddText(grpP, col3 + labelW, y, 100);
 
-            // RadioButton Giới tính: Tính toán lại X để không bị trôi ra ngoài GroupBox
             rbNam = new RadioButton() { Text = "Nam", Location = new Point(col3 + labelW + 110, y), AutoSize = true, Checked = true };
             rbNu = new RadioButton() { Text = "Nữ", Location = new Point(col3 + labelW + 170, y), AutoSize = true };
             grpP.Controls.AddRange(new Control[] { rbNam, rbNu });
@@ -105,16 +107,13 @@ namespace ADO
             // Dòng 5, 6, 7
             y += dy; AddLabel(grpP, "Nguyên Quán", col1, y); txtNative = AddText(grpP, col1 + labelW, y, 750);
             y += dy; AddLabel(grpP, "Đ/C Thường Trú", col1, y); txtAddr = AddText(grpP, col1 + labelW, y, 750);
-
             y += dy; AddLabel(grpP, "Đ/C Tạm Trú", col1, y); txtTempAddr = AddText(grpP, col1 + labelW, y, 600);
             chkMarried = new CheckBox() { Text = "Đã kết hôn", Location = new Point(col1 + labelW + 620, y + 2), AutoSize = true };
             grpP.Controls.Add(chkMarried);
 
             // --- GROUP 2: CÔNG VIỆC ---
             GroupBox grpJ = new GroupBox() { Text = "Thông Tin Công Việc & Lương", Location = new Point(15, 400), Size = new Size(1050, 420) };
-
             y = 35;
-            // Canh lại cột cho Group 2 (Sử dụng lại labelW mới là 100)
             int jCol1 = 20, jCol2 = 380, jCol3 = 740;
 
             // Dòng 1
@@ -160,7 +159,7 @@ namespace ADO
             AddLabel(grpJ, "Quốc Tịch", jCol2, y); cboNation = AddCombo(grpJ, jCol2 + labelW, y, new string[] { "Việt Nam", "Mỹ", "Anh", "Hàn Quốc" }, 180);
             AddLabel(grpJ, "Tôn Giáo", jCol3, y); cboReligion = AddCombo(grpJ, jCol3 + labelW, y, new string[] { "Không", "Phật Giáo", "Công Giáo", "Tin Lành" }, 180);
 
-            // --- VALIDATION INPUT ---
+            // --- EVENTS MAPPING ---
             txtMobile.KeyPress += InputNumberOnly;
             txtHomePhone.KeyPress += InputNumberOnly;
             txtIDCard.KeyPress += InputNumberOnly;
@@ -168,9 +167,7 @@ namespace ADO
             txtAllowance.KeyPress += InputNumberOnly;
             txtBankAcc.KeyPress += InputNumberOnly;
             txtLaborBook.KeyPress += InputNumberOnly;
-            txtCoef.KeyPress += (s, e) => {
-                if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.')) e.Handled = true;
-            };
+            txtCoef.KeyPress += InputFloatOnly;
 
             // --- BUTTONS ---
             btSave = new Button() { Text = "LƯU HỒ SƠ", Location = new Point(400, 830), Size = new Size(140, 45), BackColor = Color.LightSeaGreen, ForeColor = Color.White, Font = new Font("Segoe UI", 10, FontStyle.Bold), FlatStyle = FlatStyle.Flat };
@@ -181,7 +178,311 @@ namespace ADO
 
             this.Controls.AddRange(new Control[] { grpP, grpJ, btSave, btCancel });
         }
-        // --- Helper Methods ---
+        #endregion
+
+        // --- Logic Methods ---
+
+        private void BtBrowse_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog op = new OpenFileDialog() { Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp" })
+            {
+                if (op.ShowDialog() == DialogResult.OK)
+                {
+                    try
+                    {
+                        // Kiểm tra file ảnh hợp lệ không để tránh lỗi
+                        using (var temp = Image.FromFile(op.FileName))
+                        {
+                            pbAvatar.Image = new Bitmap(temp);
+                        }
+                    }
+                    catch
+                    {
+                        MessageBox.Show("File ảnh không hợp lệ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+        }
+
+        private void LoadDataToForm(string id)
+        {
+            txtID.Enabled = false; // Không cho sửa ID khi đang Update
+            using (SqlConnection conn = new SqlConnection(strConnect))
+            {
+                try
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT * FROM customer WHERE id = @id", conn);
+                    cmd.Parameters.AddWithValue("@id", id);
+
+                    using (SqlDataReader dr = cmd.ExecuteReader())
+                    {
+                        if (dr.Read())
+                        {
+                            // Helper function để xử lý null
+                            Func<object, string> S = (o) => o == DBNull.Value ? "" : o.ToString();
+
+                            txtID.Text = S(dr["id"]);
+                            txtName.Text = S(dr["name"]);
+                            txtAlias.Text = S(dr["alias"]);
+                            txtMobile.Text = S(dr["phone"]);
+                            txtHomePhone.Text = S(dr["home_phone"]);
+                            txtEmail.Text = S(dr["email"]);
+
+                            rbNam.Checked = S(dr["gender"]) == "Nam";
+                            rbNu.Checked = !rbNam.Checked;
+
+                            if (dr["dob"] != DBNull.Value) { dtpDob.Checked = true; dtpDob.Value = (DateTime)dr["dob"]; }
+                            txtPOB.Text = S(dr["pob"]);
+                            txtCity.Text = S(dr["city"]);
+                            txtIDCard.Text = S(dr["id_card"]);
+                            if (dr["id_date"] != DBNull.Value) { dtpIDDate.Checked = true; dtpIDDate.Value = (DateTime)dr["id_date"]; }
+                            txtIDPlace.Text = S(dr["id_place"]);
+                            txtNative.Text = S(dr["native_place"]);
+                            txtAddr.Text = S(dr["address"]);
+                            txtTempAddr.Text = S(dr["temp_address"]);
+                            chkMarried.Checked = dr["is_married"] != DBNull.Value && Convert.ToBoolean(dr["is_married"]);
+
+                            cboDept.Text = S(dr["department"]);
+                            cboEmpType.Text = S(dr["emp_type"]);
+                            if (dr["start_date"] != DBNull.Value) { dtpStartDate.Checked = true; dtpStartDate.Value = (DateTime)dr["start_date"]; }
+                            cboPosition.Text = S(dr["position"]);
+                            cboJobTitle.Text = S(dr["job_title"]);
+
+                            txtBasicSalary.Text = dr["basic_salary"] != DBNull.Value ? String.Format("{0:0}", dr["basic_salary"]) : "0";
+                            txtCoef.Text = S(dr["coefficient"]);
+                            txtAllowance.Text = dr["allowance"] != DBNull.Value ? String.Format("{0:0}", dr["allowance"]) : "0";
+
+                            txtLaborBook.Text = S(dr["labor_book"]);
+                            if (dr["labor_date"] != DBNull.Value) { dtpLaborDate.Checked = true; dtpLaborDate.Value = (DateTime)dr["labor_date"]; }
+                            txtLaborPlace.Text = S(dr["labor_place"]);
+                            txtBankAcc.Text = S(dr["bank_acc"]);
+                            cboBankName.Text = S(dr["bank_name"]);
+
+                            cboEdu.Text = S(dr["education"]);
+                            cboDegree.Text = S(dr["degree"]);
+                            cboLang.Text = S(dr["language"]);
+                            cboIT.Text = S(dr["it_skill"]);
+                            cboEthnicity.Text = S(dr["ethnicity"]);
+                            cboReligion.Text = S(dr["religion"]);
+                            cboNation.Text = S(dr["nationality"]);
+
+                            if (dr["avatar"] != DBNull.Value)
+                            {
+                                byte[] img = (byte[])dr["avatar"];
+                                using (MemoryStream ms = new MemoryStream(img)) pbAvatar.Image = Image.FromStream(ms);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex) { MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message); }
+            }
+        }
+
+        private void BtSave_Click(object sender, EventArgs e)
+        {
+            if (!ValidateInput()) return;
+            SaveData();
+        }
+
+        private bool ValidateInput()
+        {
+            // 1. Validate bắt buộc
+            if (string.IsNullOrWhiteSpace(txtID.Text)) { MessageBox.Show("Vui lòng nhập Mã Nhân Viên!", "Cảnh báo"); txtID.Focus(); return false; }
+            if (string.IsNullOrWhiteSpace(txtName.Text)) { MessageBox.Show("Vui lòng nhập Họ Tên!", "Cảnh báo"); txtName.Focus(); return false; }
+
+            // 2. Validate định dạng
+            if (!string.IsNullOrEmpty(txtIDCard.Text) && txtIDCard.Text.Length != 9 && txtIDCard.Text.Length != 12)
+            { MessageBox.Show("Số CMND/CCCD phải là 9 hoặc 12 số.", "Lỗi"); txtIDCard.Focus(); return false; }
+
+            if (!string.IsNullOrEmpty(txtMobile.Text) && txtMobile.Text.Length < 10)
+            { MessageBox.Show("Số điện thoại di động quá ngắn.", "Lỗi"); txtMobile.Focus(); return false; }
+
+            if (!IsValidEmail(txtEmail.Text))
+            { MessageBox.Show("Email không đúng định dạng.", "Lỗi"); txtEmail.Focus(); return false; }
+
+            // 3. Validate Logic
+            if (dtpDob.Checked)
+            {
+                int age = DateTime.Now.Year - dtpDob.Value.Year;
+                if (dtpDob.Value > DateTime.Now)
+                { MessageBox.Show("Ngày sinh không được lớn hơn ngày hiện tại!", "Lỗi Logic"); dtpDob.Focus(); return false; }
+                if (age < 18)
+                { MessageBox.Show("Nhân viên chưa đủ 18 tuổi!", "Cảnh báo LĐ"); dtpDob.Focus(); return false; }
+            }
+
+            // 4. Validate Database (Trùng lặp)
+            if (_currentId == null && CheckDuplicate("id", txtID.Text, "Mã nhân viên")) { txtID.Focus(); return false; }
+            if (CheckDuplicate("phone", txtMobile.Text, "Số điện thoại")) { txtMobile.Focus(); txtMobile.SelectAll(); return false; }
+            if (CheckDuplicate("email", txtEmail.Text, "Email")) { txtEmail.Focus(); txtEmail.SelectAll(); return false; }
+            if (CheckDuplicate("id_card", txtIDCard.Text, "Số CCCD/CMND")) { txtIDCard.Focus(); txtIDCard.SelectAll(); return false; }
+
+            return true;
+        }
+
+        private void SaveData()
+        {
+            using (SqlConnection conn = new SqlConnection(strConnect))
+            {
+                try
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand() { Connection = conn };
+
+                    string sqlInsert = @"INSERT INTO customer 
+                        (id, name, alias, phone, home_phone, email, gender, dob, pob, city, 
+                         id_card, id_date, id_place, native_place, address, temp_address, is_married, 
+                         emp_type, start_date, department, position, job_title, basic_salary, coefficient, 
+                         allowance, labor_book, labor_date, labor_place, bank_acc, bank_name, education, 
+                         degree, language, it_skill, ethnicity, nationality, religion, avatar) 
+                        VALUES 
+                        (@id, @name, @alias, @phone, @home, @email, @gender, @dob, @pob, @city, 
+                         @idc, @idcd, @idcp, @native, @addr, @temp, @married, 
+                         @empt, @start, @dept, @pos, @job, @salary, @coef, 
+                         @allow, @labor, @ldate, @lplace, @bank, @bname, @edu, 
+                         @deg, @lang, @it, @eth, @nat, @rel, @img)";
+
+                    string sqlUpdate = @"UPDATE customer SET 
+                        name=@name, alias=@alias, phone=@phone, home_phone=@home, email=@email, gender=@gender, dob=@dob, 
+                        pob=@pob, city=@city, id_card=@idc, id_date=@idcd, id_place=@idcp, native_place=@native, 
+                        address=@addr, temp_address=@temp, is_married=@married, emp_type=@empt, start_date=@start, 
+                        department=@dept, position=@pos, job_title=@job, basic_salary=@salary, coefficient=@coef, 
+                        allowance=@allow, labor_book=@labor, labor_date=@ldate, labor_place=@lplace, bank_acc=@bank, 
+                        bank_name=@bname, education=@edu, degree=@deg, language=@lang, it_skill=@it, 
+                        ethnicity=@eth, nationality=@nat, religion=@rel, avatar=@img 
+                        WHERE id=@id";
+
+                    cmd.CommandText = (_currentId == null) ? sqlInsert : sqlUpdate;
+
+                    // Helper thêm tham số an toàn
+                    Action<string, object> AddP = (name, val) => {
+                        if (val == null || string.IsNullOrWhiteSpace(val.ToString()))
+                            cmd.Parameters.AddWithValue(name, DBNull.Value);
+                        else
+                            cmd.Parameters.AddWithValue(name, val);
+                    };
+
+                    AddP("@id", txtID.Text);
+                    AddP("@name", txtName.Text);
+                    AddP("@alias", txtAlias.Text);
+                    AddP("@phone", txtMobile.Text);
+                    AddP("@home", txtHomePhone.Text);
+                    AddP("@email", txtEmail.Text);
+                    AddP("@gender", rbNam.Checked ? "Nam" : "Nữ");
+                    cmd.Parameters.AddWithValue("@dob", dtpDob.Checked ? (object)dtpDob.Value : DBNull.Value);
+                    AddP("@pob", txtPOB.Text);
+                    AddP("@city", txtCity.Text);
+
+                    AddP("@idc", txtIDCard.Text);
+                    cmd.Parameters.AddWithValue("@idcd", dtpIDDate.Checked ? (object)dtpIDDate.Value : DBNull.Value);
+                    AddP("@idcp", txtIDPlace.Text);
+                    AddP("@native", txtNative.Text);
+                    AddP("@addr", txtAddr.Text);
+                    AddP("@temp", txtTempAddr.Text);
+                    cmd.Parameters.AddWithValue("@married", chkMarried.Checked);
+
+                    AddP("@empt", cboEmpType.Text);
+                    cmd.Parameters.AddWithValue("@start", dtpStartDate.Checked ? (object)dtpStartDate.Value : DBNull.Value);
+                    AddP("@dept", cboDept.Text);
+                    AddP("@pos", cboPosition.Text);
+                    AddP("@job", cboJobTitle.Text);
+
+                    decimal sal = 0; decimal.TryParse(txtBasicSalary.Text, out sal); cmd.Parameters.AddWithValue("@salary", sal);
+                    float coef = 1; float.TryParse(txtCoef.Text, out coef); cmd.Parameters.AddWithValue("@coef", coef);
+                    decimal allow = 0; decimal.TryParse(txtAllowance.Text, out allow); cmd.Parameters.AddWithValue("@allow", allow);
+
+                    AddP("@labor", txtLaborBook.Text);
+                    cmd.Parameters.AddWithValue("@ldate", dtpLaborDate.Checked ? (object)dtpLaborDate.Value : DBNull.Value);
+                    AddP("@lplace", txtLaborPlace.Text);
+                    AddP("@bank", txtBankAcc.Text);
+                    AddP("@bname", cboBankName.Text);
+
+                    AddP("@edu", cboEdu.Text);
+                    AddP("@deg", cboDegree.Text);
+                    AddP("@lang", cboLang.Text);
+                    AddP("@it", cboIT.Text);
+                    AddP("@eth", cboEthnicity.Text);
+                    AddP("@nat", cboNation.Text);
+                    AddP("@rel", cboReligion.Text);
+
+                    // Xử lý ảnh
+                    if (pbAvatar.Image != null)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            pbAvatar.Image.Save(ms, ImageFormat.Png);
+                            cmd.Parameters.AddWithValue("@img", ms.ToArray());
+                        }
+                    }
+                    else
+                    {
+                        cmd.Parameters.Add("@img", SqlDbType.VarBinary).Value = DBNull.Value;
+                    }
+
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi trong quá trình lưu: " + ex.Message, "Lỗi Database", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private bool CheckDuplicate(string fieldName, string value, string displayName)
+        {
+            if (string.IsNullOrWhiteSpace(value)) return false;
+
+            using (SqlConnection conn = new SqlConnection(strConnect))
+            {
+                try
+                {
+                    conn.Open();
+                    string query = $"SELECT COUNT(*) FROM customer WHERE {fieldName} = @val";
+
+                    // Nếu đang cập nhật, không đếm chính record này
+                    if (_currentId != null) query += " AND id != @currId";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@val", value);
+                    if (_currentId != null) cmd.Parameters.AddWithValue("@currId", _currentId);
+
+                    int count = (int)cmd.ExecuteScalar();
+                    if (count > 0)
+                    {
+                        MessageBox.Show($"{displayName} '{value}' đã tồn tại trong hệ thống.", "Trùng lặp dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi kiểm tra {displayName}: {ex.Message}");
+                    return true; // Chặn lưu nếu lỗi kiểm tra để an toàn
+                }
+            }
+            return false;
+        }
+
+        // --- Helper Methods (Validation & UI) ---
+        #region Helper UI & Validation
+        private void InputNumberOnly(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) e.Handled = true;
+        }
+
+        private void InputFloatOnly(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && (e.KeyChar != '.')) e.Handled = true;
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email)) return true;
+            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+        }
+
         private void AddLabel(GroupBox g, string text, int x, int y)
         {
             Label l = new Label() { Text = text, Location = new Point(x, y + 4), AutoSize = true };
@@ -210,262 +511,6 @@ namespace ADO
             g.Controls.Add(c);
             return c;
         }
-
-        // --- Validation Logic ---
-        private void InputNumberOnly(object sender, KeyPressEventArgs e)
-        {
-            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) e.Handled = true;
-        }
-
-        private bool IsValidEmail(string email)
-        {
-            if (string.IsNullOrWhiteSpace(email)) return true;
-            return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
-        }
-
-        // --- LOAD DATA ---
-        private void LoadDataToForm(string id)
-        {
-            txtID.Enabled = false;
-            using (SqlConnection conn = new SqlConnection(strConnect))
-            {
-                try
-                {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand("SELECT * FROM customer WHERE id = @id", conn);
-                    cmd.Parameters.AddWithValue("@id", id);
-                    SqlDataReader dr = cmd.ExecuteReader();
-                    if (dr.Read())
-                    {
-                        Func<object, string> S = (o) => o == DBNull.Value ? "" : o.ToString();
-
-                        txtID.Text = S(dr["id"]);
-                        txtName.Text = S(dr["name"]);
-                        txtAlias.Text = S(dr["alias"]);
-                        txtMobile.Text = S(dr["phone"]);
-                        txtHomePhone.Text = S(dr["home_phone"]);
-                        txtEmail.Text = S(dr["email"]);
-
-                        rbNam.Checked = S(dr["gender"]) == "Nam";
-                        rbNu.Checked = !rbNam.Checked;
-
-                        if (dr["dob"] != DBNull.Value) { dtpDob.Checked = true; dtpDob.Value = (DateTime)dr["dob"]; }
-                        txtPOB.Text = S(dr["pob"]);
-                        txtCity.Text = S(dr["city"]);
-                        txtIDCard.Text = S(dr["id_card"]);
-                        if (dr["id_date"] != DBNull.Value) { dtpIDDate.Checked = true; dtpIDDate.Value = (DateTime)dr["id_date"]; }
-                        txtIDPlace.Text = S(dr["id_place"]);
-                        txtNative.Text = S(dr["native_place"]);
-                        txtAddr.Text = S(dr["address"]);
-                        txtTempAddr.Text = S(dr["temp_address"]);
-                        chkMarried.Checked = dr["is_married"] != DBNull.Value && Convert.ToBoolean(dr["is_married"]);
-
-                        cboDept.Text = S(dr["department"]);
-                        cboEmpType.Text = S(dr["emp_type"]);
-                        if (dr["start_date"] != DBNull.Value) { dtpStartDate.Checked = true; dtpStartDate.Value = (DateTime)dr["start_date"]; }
-                        cboPosition.Text = S(dr["position"]);
-                        cboJobTitle.Text = S(dr["job_title"]);
-
-                        txtBasicSalary.Text = dr["basic_salary"] != DBNull.Value ? String.Format("{0:0}", dr["basic_salary"]) : "0";
-                        txtCoef.Text = S(dr["coefficient"]);
-                        txtAllowance.Text = dr["allowance"] != DBNull.Value ? String.Format("{0:0}", dr["allowance"]) : "0";
-
-                        txtLaborBook.Text = S(dr["labor_book"]);
-                        if (dr["labor_date"] != DBNull.Value) { dtpLaborDate.Checked = true; dtpLaborDate.Value = (DateTime)dr["labor_date"]; }
-                        txtLaborPlace.Text = S(dr["labor_place"]);
-                        txtBankAcc.Text = S(dr["bank_acc"]);
-                        cboBankName.Text = S(dr["bank_name"]);
-
-                        cboEdu.Text = S(dr["education"]);
-                        cboDegree.Text = S(dr["degree"]);
-                        cboLang.Text = S(dr["language"]);
-                        cboIT.Text = S(dr["it_skill"]);
-                        cboEthnicity.Text = S(dr["ethnicity"]);
-                        cboReligion.Text = S(dr["religion"]);
-                        cboNation.Text = S(dr["nationality"]);
-
-                        if (dr["avatar"] != DBNull.Value)
-                        {
-                            byte[] img = (byte[])dr["avatar"];
-                            using (MemoryStream ms = new MemoryStream(img)) pbAvatar.Image = Image.FromStream(ms);
-                        }
-                    }
-                }
-                catch (Exception ex) { MessageBox.Show("Lỗi: " + ex.Message); }
-            }
-        }
-
-        // --- SAVE DATA ---
-        private void BtSave_Click(object sender, EventArgs e)
-        {
-            // --- 1. VALIDATE CƠ BẢN (Client Side) ---
-            if (string.IsNullOrWhiteSpace(txtID.Text)) { MessageBox.Show("Vui lòng nhập Mã Nhân Viên!", "Cảnh báo"); txtID.Focus(); return; }
-            if (string.IsNullOrWhiteSpace(txtName.Text)) { MessageBox.Show("Vui lòng nhập Họ Tên!", "Cảnh báo"); txtName.Focus(); return; }
-
-            // Validate CCCD
-            if (!string.IsNullOrEmpty(txtIDCard.Text) && txtIDCard.Text.Length != 9 && txtIDCard.Text.Length != 12)
-            { MessageBox.Show("Số CMND/CCCD phải là 9 hoặc 12 số.", "Lỗi"); txtIDCard.Focus(); return; }
-
-            // Validate SĐT
-            if (!string.IsNullOrEmpty(txtMobile.Text) && txtMobile.Text.Length < 10)
-            { MessageBox.Show("Số điện thoại di động không hợp lệ (quá ngắn).", "Lỗi"); txtMobile.Focus(); return; }
-
-            // Validate Email Regex
-            if (!IsValidEmail(txtEmail.Text))
-            { MessageBox.Show("Email không đúng định dạng.", "Lỗi"); txtEmail.Focus(); return; }
-
-            // Validate Ngày Sinh (Logic)
-            if (dtpDob.Checked)
-            {
-                int age = DateTime.Now.Year - dtpDob.Value.Year;
-                if (dtpDob.Value > DateTime.Now)
-                { MessageBox.Show("Ngày sinh không được lớn hơn ngày hiện tại!", "Lỗi Logic"); dtpDob.Focus(); return; }
-
-                if (age < 18)
-                { MessageBox.Show("Nhân viên chưa đủ 18 tuổi!", "Cảnh báo LĐ"); dtpDob.Focus(); return; }
-            }
-
-            // --- 2. VALIDATE TRÙNG LẶP (Database Side) ---
-            // Kiểm tra Mã NV trùng (Chỉ check khi thêm mới)
-            if (_currentId == null)
-            {
-                if (CheckDuplicate("id", txtID.Text, "Mã nhân viên")) { txtID.Focus(); return; }
-            }
-
-            // Kiểm tra SĐT Di động trùng
-            if (CheckDuplicate("phone", txtMobile.Text, "Số điện thoại")) { txtMobile.Focus(); txtMobile.SelectAll(); return; }
-
-            // Kiểm tra Email trùng
-            if (CheckDuplicate("email", txtEmail.Text, "Email")) { txtEmail.Focus(); txtEmail.SelectAll(); return; }
-
-            // Kiểm tra CCCD trùng (Rất quan trọng)
-            if (CheckDuplicate("id_card", txtIDCard.Text, "Số CCCD/CMND")) { txtIDCard.Focus(); txtIDCard.SelectAll(); return; }
-
-
-            // --- 3. TIẾN HÀNH LƯU DỮ LIỆU ---
-            using (SqlConnection conn = new SqlConnection(strConnect))
-            {
-                try
-                {
-                    conn.Open();
-                    SqlCommand cmd = new SqlCommand() { Connection = conn };
-
-                    if (_currentId == null)
-                    {
-                        // Câu lệnh Insert
-                        cmd.CommandText = @"INSERT INTO customer (id, name, alias, phone, home_phone, email, gender, dob, pob, city, id_card, id_date, id_place, native_place, address, temp_address, is_married, emp_type, start_date, department, position, job_title, basic_salary, coefficient, allowance, labor_book, labor_date, labor_place, bank_acc, bank_name, education, degree, language, it_skill, ethnicity, nationality, religion, avatar) VALUES (@id, @name, @alias, @phone, @home, @email, @gender, @dob, @pob, @city, @idc, @idcd, @idcp, @native, @addr, @temp, @married, @empt, @start, @dept, @pos, @job, @salary, @coef, @allow, @labor, @ldate, @lplace, @bank, @bname, @edu, @deg, @lang, @it, @eth, @nat, @rel, @img)";
-                    }
-                    else
-                    {
-                        // Câu lệnh Update
-                        cmd.CommandText = @"UPDATE customer SET name=@name, alias=@alias, phone=@phone, home_phone=@home, email=@email, gender=@gender, dob=@dob, pob=@pob, city=@city, id_card=@idc, id_date=@idcd, id_place=@idcp, native_place=@native, address=@addr, temp_address=@temp, is_married=@married, emp_type=@empt, start_date=@start, department=@dept, position=@pos, job_title=@job, basic_salary=@salary, coefficient=@coef, allowance=@allow, labor_book=@labor, labor_date=@ldate, labor_place=@lplace, bank_acc=@bank, bank_name=@bname, education=@edu, degree=@deg, language=@lang, it_skill=@it, ethnicity=@eth, nationality=@nat, religion=@rel, avatar=@img WHERE id=@id";
-                    }
-
-                    // Helper để thêm tham số nhanh gọn
-                    Action<string, object> AddP = (pName, val) => cmd.Parameters.AddWithValue(pName, (val == null || val.ToString() == "") ? DBNull.Value : val);
-
-                    AddP("@id", txtID.Text);
-                    AddP("@name", txtName.Text);
-                    AddP("@alias", txtAlias.Text);
-                    AddP("@phone", txtMobile.Text);
-                    AddP("@home", txtHomePhone.Text);
-                    AddP("@email", txtEmail.Text);
-                    AddP("@gender", rbNam.Checked ? "Nam" : "Nữ");
-                    cmd.Parameters.AddWithValue("@dob", dtpDob.Checked ? (object)dtpDob.Value : DBNull.Value);
-                    AddP("@pob", txtPOB.Text);
-                    AddP("@city", txtCity.Text);
-                    AddP("@idc", txtIDCard.Text);
-                    cmd.Parameters.AddWithValue("@idcd", dtpIDDate.Checked ? (object)dtpIDDate.Value : DBNull.Value);
-                    AddP("@idcp", txtIDPlace.Text);
-                    AddP("@native", txtNative.Text);
-                    AddP("@addr", txtAddr.Text);
-                    AddP("@temp", txtTempAddr.Text);
-                    cmd.Parameters.AddWithValue("@married", chkMarried.Checked);
-
-                    AddP("@empt", cboEmpType.Text);
-                    cmd.Parameters.AddWithValue("@start", dtpStartDate.Checked ? (object)dtpStartDate.Value : DBNull.Value);
-                    AddP("@dept", cboDept.Text);
-                    AddP("@pos", cboPosition.Text);
-                    AddP("@job", cboJobTitle.Text);
-
-                    decimal sal = 0; decimal.TryParse(txtBasicSalary.Text, out sal); cmd.Parameters.AddWithValue("@salary", sal);
-                    float coef = 1; float.TryParse(txtCoef.Text, out coef); cmd.Parameters.AddWithValue("@coef", coef);
-                    decimal allow = 0; decimal.TryParse(txtAllowance.Text, out allow); cmd.Parameters.AddWithValue("@allow", allow);
-
-                    AddP("@labor", txtLaborBook.Text);
-                    cmd.Parameters.AddWithValue("@ldate", dtpLaborDate.Checked ? (object)dtpLaborDate.Value : DBNull.Value);
-                    AddP("@lplace", txtLaborPlace.Text);
-                    AddP("@bank", txtBankAcc.Text);
-                    AddP("@bname", cboBankName.Text);
-                    AddP("@edu", cboEdu.Text);
-                    AddP("@deg", cboDegree.Text);
-                    AddP("@lang", cboLang.Text);
-                    AddP("@it", cboIT.Text);
-                    AddP("@eth", cboEthnicity.Text);
-                    AddP("@nat", cboNation.Text);
-                    AddP("@rel", cboReligion.Text);
-
-                    // Xử lý ảnh
-                    if (pbAvatar.Image != null)
-                    {
-                        using (MemoryStream ms = new MemoryStream())
-                        {
-                            pbAvatar.Image.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
-                            cmd.Parameters.AddWithValue("@img", ms.ToArray());
-                        }
-                    }
-                    else cmd.Parameters.Add("@img", SqlDbType.VarBinary).Value = DBNull.Value;
-
-                    cmd.ExecuteNonQuery();
-                    MessageBox.Show("Lưu dữ liệu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
-                catch (Exception ex) { MessageBox.Show("Lỗi lưu: " + ex.Message); }
-            }
-        }        // Hàm kiểm tra trùng lặp trong CSDL
-        private bool CheckDuplicate(string fieldName, string value, string displayName)
-        {
-            // Nếu ô trống thì bỏ qua không kiểm tra (trừ khi bạn bắt buộc nhập)
-            if (string.IsNullOrWhiteSpace(value)) return false;
-
-            using (SqlConnection conn = new SqlConnection(strConnect))
-            {
-                try
-                {
-                    conn.Open();
-                    // Câu lệnh: Đếm xem có ai có giá trị này KHÔNG tính người đang sửa (nếu có)
-                    string query = $"SELECT COUNT(*) FROM customer WHERE {fieldName} = @val";
-
-                    // Nếu đang ở chế độ Cập nhật (_currentId != null), ta phải loại trừ chính bản thân người đó ra
-                    if (_currentId != null)
-                    {
-                        query += " AND id != @currId";
-                    }
-
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@val", value);
-
-                    if (_currentId != null)
-                    {
-                        cmd.Parameters.AddWithValue("@currId", _currentId);
-                    }
-
-                    int count = (int)cmd.ExecuteScalar();
-
-                    if (count > 0)
-                    {
-                        MessageBox.Show($"{displayName} '{value}' đã tồn tại trong hệ thống. Vui lòng kiểm tra lại!", "Trùng dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return true; // Có trùng
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi kiểm tra trùng lặp: " + ex.Message);
-                    return true; // Coi như trùng để chặn lưu cho an toàn
-                }
-            }
-            return false; // Không trùng
-        }
+        #endregion
     }
 }

@@ -19,6 +19,7 @@
             this.btDelete = new System.Windows.Forms.Button();
             this.btRead = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.btExcel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvCustomer)).BeginInit();
             this.SuspendLayout();
             // 
@@ -83,11 +84,24 @@
             this.label1.Text = "Danh sách nhân viên";
             this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
+            // btExcel
+            // 
+            this.btExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btExcel.Location = new System.Drawing.Point(508, 488);
+            this.btExcel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.btExcel.Name = "btExcel";
+            this.btExcel.Size = new System.Drawing.Size(112, 44);
+            this.btExcel.TabIndex = 6;
+            this.btExcel.Text = "Xuất Excel";
+            this.btExcel.UseVisualStyleBackColor = true;
+            this.btExcel.Click += new System.EventHandler(this.btExcel_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(882, 551);
+            this.Controls.Add(this.btExcel);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btRead);
             this.Controls.Add(this.btDelete);
@@ -111,5 +125,6 @@
         private System.Windows.Forms.Button btDelete;
         private System.Windows.Forms.Button btRead;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btExcel; // 4. Khai báo biến nút
     }
 }
