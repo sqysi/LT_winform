@@ -8,3 +8,4 @@ D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.csproj.CoreCompileInputs.cache
 D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.exe
 D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.pdb
 D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.Form1.resources
+D:\SCHOOL\LT-C#\LT_winform\ADO\obj\Debug\ADO.frmCustomer.resources

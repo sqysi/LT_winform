@@ -1,0 +1,15 @@
+{
+  "version": "0.2.1",
+  "tasks": [
+    {
+      "taskLabel": "task-frmCustomer",
+      "appliesTo": "ADO/frmCustomer.cs",
+      "type": "launch"
+    },
+    {
+      "taskLabel": "task-frmCustomer",
+      "appliesTo": "ADO/frmCustomer.cs",
+      "type": "launch"
+    }
+  ]
+}

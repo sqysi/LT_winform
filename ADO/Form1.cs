@@ -7,206 +7,140 @@ namespace ADO
 {
     public partial class Form1 : Form
     {
-        // --- CẤU HÌNH KẾT NỐI ---
-        // Thay tên Server của bạn vào đây
+        // Chuỗi kết nối (Đã cập nhật theo code bạn gửi)
         string strConnect = @"Data Source=QYS\SYQUYS;Database=sale;Integrated Security=True";
-        SqlConnection conn = null;
 
         public Form1()
         {
             InitializeComponent();
-            conn = new SqlConnection(strConnect);
+            ConfigGridView();
         }
 
-        // 1. ĐỌC DỮ LIỆU
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            LoadData();
+        }
+
+        // --- CẤU HÌNH BẢNG ---
+        private void ConfigGridView()
+        {
+            dgvCustomer.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvCustomer.MultiSelect = false;
+            dgvCustomer.ReadOnly = true;
+            dgvCustomer.AllowUserToAddRows = false;
+            dgvCustomer.AllowUserToDeleteRows = false;
+            dgvCustomer.RowHeadersVisible = false;
+            dgvCustomer.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        }
+
+        // --- TẢI DỮ LIỆU DANH SÁCH (Chỉ lấy ID và Tên cho nhẹ) ---
+        private void LoadData()
+        {
+            using (SqlConnection conn = new SqlConnection(strConnect))
+            {
+                try
+                {
+                    conn.Open();
+                    // Chỉ lấy các trường cần thiết để hiển thị trên Grid
+                    SqlDataAdapter da = new SqlDataAdapter("SELECT id, name, phone, gender FROM customer", conn);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    dgvCustomer.DataSource = dt;
+
+                    // Đặt tên cột hiển thị tiếng Việt
+                    if (dgvCustomer.Columns.Count > 0)
+                    {
+                        dgvCustomer.Columns["id"].HeaderText = "Mã NV";
+                        dgvCustomer.Columns["id"].FillWeight = 20;
+                        dgvCustomer.Columns["name"].HeaderText = "Họ và Tên";
+                        dgvCustomer.Columns["name"].FillWeight = 40;
+                        dgvCustomer.Columns["phone"].HeaderText = "SĐT";
+                        dgvCustomer.Columns["phone"].FillWeight = 25;
+                        dgvCustomer.Columns["gender"].HeaderText = "Giới Tính";
+                        dgvCustomer.Columns["gender"].FillWeight = 15;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+                }
+            }
+        }
+
         private void btRead_Click(object sender, EventArgs e)
         {
             LoadData();
         }
 
-        private void LoadData()
-        {
-            try
-            {
-                if (conn.State == ConnectionState.Closed) conn.Open();
-
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM customer", conn);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                dgvCustomer.DataSource = dt;
-
-                if (conn.State == ConnectionState.Open) conn.Close();
-
-                // Đổi tên cột hiển thị cho đẹp
-                if (dgvCustomer.Columns.Count >= 4)
-                {
-                    dgvCustomer.Columns[0].HeaderText = "Mã KH";
-                    dgvCustomer.Columns[1].HeaderText = "Họ Tên";
-                    dgvCustomer.Columns[2].HeaderText = "SĐT";
-                    dgvCustomer.Columns[3].HeaderText = "Giới tính";
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
-            }
-        }
-
-        // 2. THÊM (Có kiểm tra trùng ID)
         private void btNew_Click(object sender, EventArgs e)
         {
-            if (ValidateInput())
+            // Mở form thêm mới (constructor không tham số)
+            frmCustomer f = new frmCustomer();
+            if (f.ShowDialog() == DialogResult.OK)
             {
-                // Bước 1: Kiểm tra trùng ID
-                if (CheckDuplicateID(txtId.Text))
-                {
-                    MessageBox.Show("Mã ID này đã tồn tại! Vui lòng nhập mã khác.");
-                    return;
-                }
-
-                // Bước 2: Thêm mới
-                string sql = "INSERT INTO customer (id, name, phone, gender) VALUES (@id, @name, @phone, @gender)";
-                RunSQL(sql);
+                LoadData();
             }
         }
 
-        // 3. XÓA
         private void btDelete_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtId.Text))
+            if (dgvCustomer.CurrentRow == null)
             {
-                MessageBox.Show("Vui lòng chọn hoặc nhập Mã ID cần xóa!");
+                MessageBox.Show("Vui lòng chọn dòng cần xóa!");
                 return;
             }
 
-            if (MessageBox.Show("Bạn có chắc muốn xóa khách hàng này?", "Cảnh báo", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            // Lấy ID dưới dạng chuỗi để khớp với DB
+            string id = dgvCustomer.CurrentRow.Cells["id"].Value.ToString();
+
+            if (MessageBox.Show("Bạn chắc chắn muốn xóa nhân viên này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                string sql = "DELETE FROM customer WHERE id = @id";
-                RunSQL(sql);
-            }
-        }
-
-        // 4. SỬA
-        private void btEdit_Click(object sender, EventArgs e)
-        {
-            if (ValidateInput())
-            {
-                // Khi sửa thì ID dùng làm điều kiện tìm kiếm để update các trường khác
-                string sql = "UPDATE customer SET name = @name, phone = @phone, gender = @gender WHERE id = @id";
-                RunSQL(sql);
-            }
-        }
-
-        // --- HÀM KIỂM TRA TRÙNG ID ---
-        private bool CheckDuplicateID(string id)
-        {
-            bool isExist = false;
-            try
-            {
-                if (conn.State == ConnectionState.Closed) conn.Open();
-
-                SqlCommand cmd = new SqlCommand("SELECT COUNT(*) FROM customer WHERE id = @id", conn);
-                cmd.Parameters.AddWithValue("@id", int.Parse(id));
-
-                int count = (int)cmd.ExecuteScalar(); // Trả về số lượng bản ghi tìm thấy
-
-                if (count > 0) isExist = true;
-
-                if (conn.State == ConnectionState.Open) conn.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi kiểm tra trùng: " + ex.Message);
-            }
-            return isExist;
-        }
-
-        // --- HÀM CHẠY SQL CHUNG (QUAN TRỌNG: XỬ LÝ GIỚI TÍNH CHUỖI) ---
-        private void RunSQL(string sql)
-        {
-            try
-            {
-                if (conn.State == ConnectionState.Closed) conn.Open();
-                SqlCommand cmd = new SqlCommand(sql, conn);
-
-                // Thêm tham số ID
-                if (!string.IsNullOrEmpty(txtId.Text))
-                    cmd.Parameters.AddWithValue("@id", int.Parse(txtId.Text));
-
-                cmd.Parameters.AddWithValue("@name", txtName.Text);
-                cmd.Parameters.AddWithValue("@phone", txtPhone.Text);
-
-                // --- XỬ LÝ GIỚI TÍNH (CHUỖI) ---
-                // Nếu Radio Nam chọn -> Lưu chữ "Nam", ngược lại lưu "Nữ"
-                string genderValue = rbMale.Checked ? "Nam" : "Nữ";
-                cmd.Parameters.AddWithValue("@gender", genderValue);
-
-                int result = cmd.ExecuteNonQuery();
-
-                if (conn.State == ConnectionState.Open) conn.Close();
-
-                if (result > 0)
+                using (SqlConnection conn = new SqlConnection(strConnect))
                 {
-                    MessageBox.Show("Thành công!");
-                    LoadData(); // Load lại lưới
-
-                    // Xóa trắng form, đặt lại mặc định là Nam
-                    txtId.Text = ""; txtName.Text = ""; txtPhone.Text = "";
-                    rbMale.Checked = true;
-                }
-                else
-                {
-                    MessageBox.Show("Không tìm thấy dữ liệu để thao tác (Kiểm tra Mã ID).");
+                    try
+                    {
+                        conn.Open();
+                        SqlCommand cmd = new SqlCommand("DELETE FROM customer WHERE id = @id", conn);
+                        cmd.Parameters.AddWithValue("@id", id);
+                        cmd.ExecuteNonQuery();
+                        LoadData();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Lỗi: " + ex.Message);
+                    }
                 }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi thao tác SQL: " + ex.Message);
-            }
         }
 
-        // --- SỰ KIỆN CLICK VÀO LƯỚI (HIỆN LÊN RADIO) ---
         private void dgvCustomer_CellClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (e.RowIndex >= 0)
+            // Sửa logic: Chỉ cần lấy ID và gọi ShowDetail
+            if (e.RowIndex >= 0 && dgvCustomer.CurrentRow != null)
             {
-                DataGridViewRow row = dgvCustomer.Rows[e.RowIndex];
-
-                txtId.Text = row.Cells[0].Value.ToString();
-                txtName.Text = row.Cells[1].Value.ToString();
-                txtPhone.Text = row.Cells[2].Value != DBNull.Value ? row.Cells[2].Value.ToString() : "";
-
-                // Xử lý hiển thị RadioButton từ chuỗi
-                if (row.Cells[3].Value != DBNull.Value)
+                var cellValue = dgvCustomer.CurrentRow.Cells["id"].Value;
+                if (cellValue != null)
                 {
-                    string gender = row.Cells[3].Value.ToString().Trim(); // Lấy chữ "Nam" hoặc "Nữ"
-
-                    if (gender == "Nam")
-                    {
-                        rbMale.Checked = true;
-                    }
-                    else
-                    {
-                        rbFemale.Checked = true;
-                    }
+                    ShowDetail(cellValue.ToString());
                 }
             }
         }
 
-        // Kiểm tra đầu vào cơ bản
-        private bool ValidateInput()
+        private void ShowDetail(string id)
         {
-            if (string.IsNullOrWhiteSpace(txtId.Text) || string.IsNullOrWhiteSpace(txtName.Text))
+            // Truyền ID sang frmDetail, để form đó tự load dữ liệu đầy đủ
+            frmDetail f = new frmDetail(id);
+            if (f.ShowDialog() == DialogResult.OK)
             {
-                MessageBox.Show("Vui lòng nhập Mã và Tên!");
-                return false;
+                LoadData(); // Load lại nếu bên detail có sửa/xóa
             }
-            if (!int.TryParse(txtId.Text, out _))
-            {
-                MessageBox.Show("Mã ID phải là số nguyên!");
-                return false;
-            }
-            return true;
+        }
+
+        private void label1_Click(object sender, EventArgs e) { }
+
+        private void dgvCustomer_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
         }
     }
 }
